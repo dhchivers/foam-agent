@@ -45,6 +45,26 @@ RUN apt-get update && apt-get install -y \
     # Python for automation
     python3 \
     python3-pip \
+    python3-dev \
+    python3-venv \
+    # CAD and 3D visualization dependencies
+    libgl1-mesa-dev \
+    libglu1-mesa-dev \
+    libxrender1 \
+    libxcursor1 \
+    libxft2 \
+    libxinerama1 \
+    # VTK dependencies for 3D visualization
+    libvtk9-dev \
+    python3-vtk9 \
+    # OpenCASCADE dependencies for STEP/IGES support
+    libocct-foundation-dev \
+    libocct-modeling-data-dev \
+    libocct-modeling-algorithms-dev \
+    libocct-data-exchange-dev \
+    libocct-visualization-dev \
+    # STL and mesh processing
+    meshlab \
     # Utilities
     supervisor \
     vim \
@@ -95,6 +115,15 @@ RUN apt-get update && apt-get install -y \
 # Source Geant4 environment in bashrc
 # RUN echo "source /opt/geant4/bin/geant4.sh" >> /root/.bashrc
 
+# Install Python dependencies for CAD, AI, and visualization
+COPY docker/requirements.txt /tmp/requirements.txt
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir -r /tmp/requirements.txt && \
+    rm /tmp/requirements.txt
+
+# Create Python utilities directory
+RUN mkdir -p /app/python
+
 # Create application directory
 WORKDIR /app
 
@@ -102,6 +131,7 @@ WORKDIR /app
 COPY src/ /app/src/
 COPY ui/ /app/ui/
 COPY resources/ /app/resources/
+COPY python/ /app/python/
 COPY CMakeLists.txt /app/
 
 # Build Qt6 application

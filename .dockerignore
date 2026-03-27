@@ -32,5 +32,10 @@ docs/
 # Work directory
 work/
 
+# Environment files (should be configured at runtime)
+.env
+.env.*
+!.env.example
+
 # Logs
 *.log

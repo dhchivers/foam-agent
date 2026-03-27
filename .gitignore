@@ -18,9 +18,15 @@ qrc_*.cpp
 
 # macOS
 .DS_Store
+._*
 
 # Work directory
 work/
+
+# Environment files
+.env
+.env.local
+!.env.example
 
 # Logs
 *.log
