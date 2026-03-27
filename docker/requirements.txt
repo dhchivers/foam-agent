@@ -1,0 +1,4 @@
+# Python dependencies for automation and utilities
+numpy>=1.21.0
+matplotlib>=3.4.0
+vtk>=9.0.0

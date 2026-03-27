@@ -1,0 +1,36 @@
+# FoamAgent - Docker ignore file
+
+# Source control
+.git
+.gitignore
+.gitattributes
+
+# Build artifacts
+build/
+*.o
+*.so
+*.a
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Documentation
+*.md
+docs/
+
+# macOS
+.DS_Store
+._*
+
+# Work directory
+work/
+
+# Logs
+*.log

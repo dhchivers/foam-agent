@@ -1,0 +1,41 @@
+# Build artifacts
+build/
+*.o
+*.so
+*.a
+
+# Qt generated files
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# Work directory
+work/
+
+# Logs
+*.log
+
+# OpenFOAM case directories (user data)
+work/*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+downloads/
+.eggs/
