@@ -4,8 +4,8 @@ matplotlib>=3.4.0
 vtk>=9.0.0
 
 # CADQuery and 3D modeling
+# Let cadquery pull in the correct cadquery-ocp version automatically
 cadquery>=2.4.0
-cadquery-ocp>=7.7.0
 ocp-tessellate>=2.0.0
 
 # STL and mesh processing
