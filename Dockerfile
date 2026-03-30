@@ -80,6 +80,7 @@ RUN apt-get update && apt-get install -y \
 
 # Build and install libfive from source for F-Rep solid modeling
 # libfive provides functional representations (F-Rep) as an alternative to boundary-reps
+# Note: Limited to 2 parallel jobs to avoid memory exhaustion during build
 RUN cd /opt && \
     git clone https://github.com/libfive/libfive.git && \
     cd libfive && \
@@ -88,7 +89,7 @@ RUN cd /opt && \
     cmake -DCMAKE_INSTALL_PREFIX=/usr/local \
           -DCMAKE_BUILD_TYPE=Release \
           .. && \
-    make -j$(nproc) && \
+    make -j2 && \
     make install && \
     ldconfig && \
     cd /opt && \
@@ -97,8 +98,8 @@ RUN cd /opt && \
 # Set libfive environment
 ENV LIBFIVE_INSTALL=/usr/local
 ENV PATH=${LIBFIVE_INSTALL}/bin:${PATH}
-ENV LD_LIBRARY_PATH=${LIBFIVE_INSTALL}/lib:${LD_LIBRARY_PATH}
-ENV PYTHONPATH=${LIBFIVE_INSTALL}/lib/python3/dist-packages:${PYTHONPATH}
+ENV LD_LIBRARY_PATH=${LIBFIVE_INSTALL}/lib
+ENV PYTHONPATH=${LIBFIVE_INSTALL}/lib/python3/dist-packages
 
 # TODO: Newton Dynamics - temporarily disabled due to build issues
 # Will be re-enabled once build configuration is resolved
