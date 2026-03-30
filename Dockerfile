@@ -147,6 +147,11 @@ COPY docker/requirements.txt /tmp/requirements.txt
 RUN pip3 install --no-cache-dir --break-system-packages -r /tmp/requirements.txt && \
     rm /tmp/requirements.txt
 
+# Try to install CADQuery (may fail on ARM64 due to cadquery-ocp availability)
+# If it fails, libfive will still be available for F-Rep modeling
+RUN pip3 install --no-cache-dir --break-system-packages cadquery>=2.4.0 ocp-tessellate>=2.0.0 || \
+    echo "WARNING: CADQuery installation failed (likely ARM64 architecture). libfive will be available for F-Rep modeling."
+
 # Create Python utilities directory
 RUN mkdir -p /app/python
 
