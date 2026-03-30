@@ -273,6 +273,171 @@ result = (cq.Workplane("XY")
         }
         
         return templates.get(shape_type.lower(), templates['box'])
+    
+    # libfive-specific prompts and methods
+    
+    LIBFIVE_SYSTEM_PROMPT = """You are an expert in functional representation (F-Rep) 3D modeling using libfive.
+Your task is to generate valid libfive Python code from natural language descriptions.
+
+Key requirements:
+1. Always assign the final geometry to a variable named 'result' or 'shape'
+2. Import necessary functions from libfive.stdlib
+3. Use signed distance functions and CSG operations
+4. Objects are defined as mathematical functions f(x,y,z)
+5. Common operations: sphere, box, cylinder, union, intersection, difference, translate, scale
+6. libfive uses functional composition - operations return new functions
+
+Output only valid Python code that can be executed directly.
+Do NOT include markdown code blocks, explanations, or anything except the Python code.
+"""
+
+    LIBFIVE_EXAMPLES = [
+        PromptExample(
+            description="Create a sphere with radius 5mm",
+            cadquery_code="""from libfive.stdlib import *
+
+# Sphere at origin with radius 5
+result = sphere(5, [0, 0, 0])
+""",
+            notes="Basic sphere using libfive"
+        ),
+        PromptExample(
+            description="Create a box 10x10x10mm",
+            cadquery_code="""from libfive.stdlib import *
+
+# Box centered at origin
+result = box([-5, -5, -5], [5, 5, 5])
+""",
+            notes="Box defined by corner points"
+        ),
+        PromptExample(
+            description="Create a cylinder with radius 5mm and height 20mm",
+            cadquery_code="""from libfive.stdlib import *
+
+# Cylinder along Z axis
+cyl = cylinder(5, -10, 10)
+result = cyl
+""",
+            notes="Cylinder with radius and Z range"
+        ),
+        PromptExample(
+            description="Create a union of a sphere and a box",
+            cadquery_code="""from libfive.stdlib import *
+
+# Sphere
+s = sphere(5, [0, 0, 0])
+
+# Box
+b = box([-3, -3, -3], [3, 3, 3])
+
+# Union them
+result = union(s, b)
+""",
+            notes="CSG union operation"
+        ),
+        PromptExample(
+            description="Create a sphere with a cylindrical hole through it",
+            cadquery_code="""from libfive.stdlib import *
+
+# Sphere
+s = sphere(10, [0, 0, 0])
+
+# Cylinder for the hole
+c = cylinder(3, -15, 15)
+
+# Subtract cylinder from sphere
+result = difference(s, c)
+""",
+            notes="Boolean difference operation"
+        ),
+    ]
+    
+    def build_libfive_prompt(
+        self,
+        description: str,
+        include_examples: bool = True,
+        num_examples: int = 3,
+        additional_context: Optional[str] = None
+    ) -> List[Dict[str, str]]:
+        """
+        Build a complete prompt for libfive code generation.
+        
+        Args:
+            description: User's natural language description
+            include_examples: Whether to include few-shot examples
+            num_examples: Number of examples to include
+            additional_context: Additional context or constraints
+            
+        Returns:
+            List of message dictionaries for chat-based APIs
+        """
+        messages = [
+            {"role": "system", "content": self.LIBFIVE_SYSTEM_PROMPT}
+        ]
+        
+        # Add few-shot examples
+        if include_examples and num_examples > 0:
+            examples_to_use = self.LIBFIVE_EXAMPLES[:min(num_examples, len(self.LIBFIVE_EXAMPLES))]
+            for example in examples_to_use:
+                messages.append({
+                    "role": "user",
+                    "content": example.description
+                })
+                messages.append({
+                    "role": "assistant",
+                    "content": example.cadquery_code  # Using same field name for consistency
+                })
+        
+        # Add the actual user request
+        user_content = description
+        if additional_context:
+            user_content = f"{description}\n\nAdditional requirements:\n{additional_context}"
+        
+        messages.append({
+            "role": "user",
+            "content": user_content
+        })
+        
+        return messages
+    
+    def generate_libfive_template(self, shape_type: str) -> str:
+        """
+        Generate a libfive template for common shape types.
+        
+        Args:
+            shape_type: Type of shape (sphere, box, cylinder, etc.)
+            
+        Returns:
+            libfive code template
+        """
+        templates = {
+            'sphere': '''from libfive.stdlib import *
+
+# Sphere with radius {radius} at position [{x}, {y}, {z}]
+result = sphere({radius}, [{x}, {y}, {z}])
+''',
+            'box': '''from libfive.stdlib import *
+
+# Box from corner1 to corner2
+result = box([{x1}, {y1}, {z1}], [{x2}, {y2}, {z2}])
+''',
+            'cylinder': '''from libfive.stdlib import *
+
+# Cylinder with radius {radius} from z={z1} to z={z2}
+result = cylinder({radius}, {z1}, {z2})
+''',
+            'union': '''from libfive.stdlib import *
+
+# Create two shapes
+shape1 = sphere({radius1}, [0, 0, 0])
+shape2 = box([{x}, {y}, {z}], [{x2}, {y2}, {z2}])
+
+# Union them together
+result = union(shape1, shape2)
+''',
+        }
+        
+        return templates.get(shape_type.lower(), templates['sphere'])
 
 
 def main():

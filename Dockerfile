@@ -63,6 +63,10 @@ RUN apt-get update && apt-get install -y \
     libocct-modeling-algorithms-dev \
     libocct-data-exchange-dev \
     libocct-visualization-dev \
+    # libfive dependencies for F-Rep solid modeling
+    libeigen3-dev \
+    libpng-dev \
+    libboost-all-dev \
     # STL and mesh processing
     meshlab \
     # Utilities
@@ -73,6 +77,28 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # OpenFOAM is already installed in the base image
+
+# Build and install libfive from source for F-Rep solid modeling
+# libfive provides functional representations (F-Rep) as an alternative to boundary-reps
+RUN cd /opt && \
+    git clone https://github.com/libfive/libfive.git && \
+    cd libfive && \
+    mkdir build && \
+    cd build && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local \
+          -DCMAKE_BUILD_TYPE=Release \
+          .. && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig && \
+    cd /opt && \
+    rm -rf libfive
+
+# Set libfive environment
+ENV LIBFIVE_INSTALL=/usr/local
+ENV PATH=${LIBFIVE_INSTALL}/bin:${PATH}
+ENV LD_LIBRARY_PATH=${LIBFIVE_INSTALL}/lib:${LD_LIBRARY_PATH}
+ENV PYTHONPATH=${LIBFIVE_INSTALL}/lib/python3/dist-packages:${PYTHONPATH}
 
 # TODO: Newton Dynamics - temporarily disabled due to build issues
 # Will be re-enabled once build configuration is resolved

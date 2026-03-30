@@ -5,7 +5,7 @@ This directory contains Python utilities for AI-driven CAD generation and geomet
 ## Modules
 
 ### `cadquery_bridge.py`
-Bridge between the Qt GUI and CADQuery for parametric 3D modeling.
+Bridge between the Qt GUI and CADQuery for parametric 3D modeling using boundary representation (B-Rep).
 
 **Features:**
 - Execute CADQuery scripts
@@ -21,6 +21,44 @@ bridge = CADQueryBridge()
 result = bridge.execute_script(cadquery_code)
 bridge.export_step(result, "output.step")
 bridge.export_stl(result, "output.stl")
+```
+
+### `libfive_bridge.py`
+Bridge between the Qt GUI and libfive for functional representation (F-Rep) 3D modeling.
+
+**Features:**
+- Execute libfive Python scripts
+- Generate STL meshes from F-Rep functions
+- Export orthographic projection images
+- Bounds detection and configuration
+
+**Key Differences from CADQuery:**
+- Uses functional representations (mathematical functions f(x,y,z))
+- No STEP export (F-Rep doesn't use boundary representation)
+- Requires bounds specification for mesh generation
+- Different modeling paradigm (signed distance functions)
+
+**Usage:**
+```python
+from libfive_bridge import LibfiveBridge
+
+bridge = LibfiveBridge()
+result = bridge.execute_script(libfive_code)
+bridge.export_stl(result, "output.stl", bounds=((-10,10), (-10,10), (-10,10)), resolution=20)
+```
+
+**Example libfive Script:**
+```python
+from libfive.stdlib import *
+
+# Create a sphere
+s = sphere(5, [0, 0, 0])
+
+# Create a box
+b = box([0, 0, 0], [3, 3, 3])
+
+# Union them together
+result = union(s, b)
 ```
 
 ### `ai_prompts.py`
