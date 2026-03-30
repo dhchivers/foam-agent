@@ -144,8 +144,8 @@ ENV PYTHONPATH=${LIBFIVE_INSTALL}/lib/python3/dist-packages
 
 # Install Python dependencies for CAD, AI, and visualization
 COPY docker/requirements.txt /tmp/requirements.txt
-RUN pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir -r /tmp/requirements.txt && \
+RUN pip3 install --no-cache-dir --break-system-packages --upgrade pip && \
+    pip3 install --no-cache-dir --break-system-packages -r /tmp/requirements.txt && \
     rm /tmp/requirements.txt
 
 # Create Python utilities directory
